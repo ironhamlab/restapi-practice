@@ -1,2 +1,2 @@
 # restapi-practice
-책 대여 rest api 간략 실습입니다
+도서 대여 rest api 실습입니다
