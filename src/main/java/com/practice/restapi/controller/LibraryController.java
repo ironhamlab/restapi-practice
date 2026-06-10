@@ -8,6 +8,9 @@ import com.practice.restapi.dto.RentalRequest;
 import com.practice.restapi.enums.BookStatus;
 import com.practice.restapi.enums.RentalStatus;
 import com.practice.restapi.exception.BookAlreadyRentedException;
+import com.practice.restapi.exception.BookNotFoundException;
+import com.practice.restapi.exception.MemberNotFoundException;
+import com.practice.restapi.exception.RentalNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -160,5 +163,51 @@ public class LibraryController {
         RentalDTO rental = findRental(rentalNo);
 
         return ResponseEntity.ok(new ResponseMessage(200, "대여 조회 성공", Map.of("rental", rental)));
+    }
+
+    @PatchMapping("/rentals/{rentalNo}/return")
+    public ResponseEntity<Void> returnBook(@PathVariable int rentalNo) {
+
+        RentalDTO rental = findRental(rentalNo);
+
+        if (rental.getStatus() == RentalStatus.RETURNED) {
+            throw new IllegalArgumentException("이미 반납된 도서입니다.");
+        }
+
+        rental.setStatus(RentalStatus.RETURNED);
+        rental.setReturnedAt(LocalDate.now());
+
+        BookDTO book = findBook(rental.getBookNo());
+        book.setStatus(BookStatus.AVAILABLE);
+
+        return ResponseEntity.noContent().build();
+    }
+
+
+
+    private MemberDTO findMember(int memberNo) {
+
+        return members.stream()
+                .filter(member -> member.getMemberNo() == memberNo)
+                .findFirst()
+                .orElseThrow(() -> new MemberNotFoundException("회원을 찾을 수 없습니다."));
+    }
+
+
+    private BookDTO findBook(int bookNo) {
+
+        return books.stream()
+                .filter(book -> book.getBookNo() == bookNo)
+                .findFirst()
+                .orElseThrow(() -> new BookNotFoundException("도서를 찾을 수 없습니다."));
+    }
+
+
+    private RentalDTO findRental(int rentalNo){
+
+        return rentals.stream()
+                .filter(rental -> rental.getRentalNo() == rentalNo)
+                .findFirst()
+                .orElseThrow(() -> new RentalNotFoundException("대여 정보를 찾을 수 없습니다."));
     }
 }
