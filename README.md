@@ -91,7 +91,7 @@ src/main/java/com/practice/restapi/
 
 ### 1. 프로젝트 클론
 ```bash
-git clone https://github.com/your-username/restapi-practice.git
+git clone https://github.com/ironhamlab/restapi-practice.git
 cd restapi-practice
 ```
 
